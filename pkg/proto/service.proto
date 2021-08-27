@@ -1,0 +1,60 @@
+syntax = "proto3";
+option go_package = "https://github.com/manpreetsingh001/linux-job";
+package pb;
+
+service WorkerService {
+  rpc Start        (StartRequest) returns (ProcessStartStatus) {}
+  rpc Status       (StatusRequest) returns (ProcessStatus) {}
+  rpc Stop         (StopRequest) returns (ProcessStatus) {}
+  rpc StreamLogs    (StreamLogRequest) returns (stream ProcessStream) {}
+}
+
+message StartRequest {
+  string cmd = 1;
+  repeated string args = 2;
+}
+
+message StatusRequest {
+  string id = 1;
+}
+
+message StopRequest {
+  string id = 1;
+}
+
+message StreamLogRequest {
+  string id = 1;
+}
+
+enum JobState {
+  Running = 0; // process is running
+  Finished = 1; // process has finished running
+  Fatal = 2; // process failed to start
+}
+
+message ProcessStatus {
+  string id = 1; // the uuid of the job
+  int64 PID = 2; // process if
+  string cmd = 3; // command passed
+  JobState state = 4; // the current state of the process
+  int64 exitCode = 5; // the exit code of the process
+  string error = 6; // the error if any
+  int64 startTime = 7;
+  int64 stopTime = 8;
+}
+
+enum StreamChannel {
+  StdOut = 0;
+  StdErr = 1;
+}
+
+message ProcessStream {
+  bytes          output = 1;
+  StreamChannel channel = 2;
+}
+
+message ProcessStartStatus {
+  string id = 1; // uuid of the job
+}
+
+
